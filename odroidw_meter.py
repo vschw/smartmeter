@@ -175,7 +175,7 @@ def bit_to_power(bit, **kwargs):
         Power in Watt (int).
     """  
     
-    conversion = kwargs.get('conversion', 1600)
+    conversion = kwargs.get('conversion', 3400)
     precision = kwargs.get('precision', 4096)
     return [int(bit[0] * conversion / precision), int(bit[1] * conversion / precision)]
 
@@ -218,23 +218,22 @@ def ssh_to_db(power, sleeptime):
     """
 
     global average
-    timenow = int(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')[:-4])
+    timenow = int(time.time())
     phase_data_1 = str(average[0]).replace('[','').replace(']','').replace(' ','')
-    phase_data_2 = str(average[1]).replace('[','').replace(']','').replace(' ','') 
-    
+    phase_data_2 = str(average[1]).replace('[','').replace(']','').replace(' ','')     
     try:
         ssh.exec_command('mongo '+db_name+' --eval "db.nodes.insert({'
                                           'node: '+node+''
                                           ', timestamp: '+str(timenow)+''
                                           ', value: \'use_kw1\''
                                           ', power: '+str(power[0])+''
-                                          ', phasedata: \''+phase_data_1+'\'})"')
+                                          ', raw_adc_data: \''+phase_data_1+'\'})"')
         ssh.exec_command('mongo '+db_name+' --eval "db.nodes.insert({'
                                           'node: '+node+''
                                           ', timestamp: '+str(timenow)+''
                                           ', value: \'use_kw2\''
                                           ', power: '+str(power[1])+''
-                                          ', phasedata: \''+phase_data_2+'\'})"')
+                                          ', raw_adc_data: \''+phase_data_2+'\'})"')
 
     except socket.error as e:
         init_ssh()
@@ -243,14 +242,13 @@ def ssh_to_db(power, sleeptime):
     time.sleep(sleeptime)    
     print 'data sent: '+str(power[0])+'W and '+str(power[1])+'W'
     display_power(power)
-    time.sleep(sleeptime)
 
 
 def submit_data_thread(d, **kwargs):
     """Initializes power data submission.
     """
 
-    conversion = kwargs.get('conversion', 1600)
+    conversion = kwargs.get('conversion', 3400)
     precision = kwargs.get('precision', 4096)   
     sleeptime = kwargs.get('sleeptime', 0.5)
     while True:
@@ -361,5 +359,6 @@ if __name__ == "__main__":
     init_spidev()
     init_tft()
     init_ssh()
-    thread.start_new_thread(submit_data_thread, (1,), {'sleeptime': 0.5, 'conversion': 4490})
+    thread.start_new_thread(submit_data_thread, (1,), {'sleeptime': 0.9, 'conversion': 3400})
     thread.start_new_thread(adcread_MCP3208(0, 1))
+
