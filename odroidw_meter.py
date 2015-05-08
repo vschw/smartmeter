@@ -210,7 +210,7 @@ def send_http_get(power, sleeptime):
     multi_get(sites, timeout=1)
     time.sleep(sleeptime)
     print 'data submitted: ' + str(power) + 'W, list length: ' + str(len(average[0]))
-    #display_power(power)
+    display_power(power)
 
 
 def ssh_to_db(power, sleeptime):
@@ -225,14 +225,14 @@ def ssh_to_db(power, sleeptime):
         ssh.exec_command('mongo '+db_name+' --eval "db.nodes.insert({'
                                           'node: '+node+''
                                           ', timestamp: '+str(timenow)+''
-                                          ', value: \'use_kw1\''
-                                          ', power: '+str(power[0])+''
+                                          ', variable: \'circuit_1\''
+                                          ', value: '+str(power[0])+''
                                           ', raw_adc_data: \''+phase_data_1+'\'})"')
         ssh.exec_command('mongo '+db_name+' --eval "db.nodes.insert({'
                                           'node: '+node+''
                                           ', timestamp: '+str(timenow)+''
-                                          ', value: \'use_kw2\''
-                                          ', power: '+str(power[1])+''
+                                          ', variable: \'circuit_2\''
+                                          ', value: '+str(power[1])+''
                                           ', raw_adc_data: \''+phase_data_2+'\'})"')
 
     except socket.error as e:
@@ -241,7 +241,7 @@ def ssh_to_db(power, sleeptime):
     average = [], []
     time.sleep(sleeptime)    
     print 'data sent: '+str(power[0])+'W and '+str(power[1])+'W'
-    display_power(power)
+    #display_power(power)
 
 
 def submit_data_thread(d, **kwargs):
