@@ -57,12 +57,12 @@ The following third-party packages are needed:
        Python bindings for Linux SPI access through spidev::
            
            git clone git://github.com/doceme/py-spidev
-	   cd py-spidev/
-	   sudo python setup.py install
+           cd py-spidev/
+           sudo python setup.py install
 
-        This install requires:
+       This install requires:
             
-            sudo apt-get install python-dev
+           sudo apt-get install python-dev
 
 This packages if needed if internal 10-bit ADC of C1 has to be accessed
 or for other GPIO functionality:
@@ -72,8 +72,8 @@ or for other GPIO functionality:
        SPI::
        
            git clone https://github.com/Gadgetoid/WiringPi2-Python.git
-	   cd WiringPi2-Python
-	   sudo python setup.py install 
+           cd WiringPi2-Python
+           sudo python setup.py install
 
 Module
 ######
@@ -104,7 +104,7 @@ __maintainer__ = "vschw"
 __email__ = "volkers@hawaii.edu"
 __status__ = "alpha"
 
-average = [],[]
+average = [], []
 UPDATE_INTERVAL = 0.0001
 
 
@@ -117,7 +117,8 @@ def init_wiringpi2():
         
     wiringpi2.wiringPiSetup()
     pass
-  
+
+
 def init_spidev():
     """Enables spidev on Odroid C1.
     
@@ -127,8 +128,9 @@ def init_spidev():
     
     global spi   
     spi = spidev.SpiDev()
-    spi.open(0,1)
-    
+    spi.open(0, 1)
+
+
 def init_tft():
     os.environ["SDL_FBDEV"] = "/dev/fb1"
     os.environ['SDL_VIDEODRIVER']="fbcon"
@@ -136,16 +138,17 @@ def init_tft():
 
     pygame.init()
     pygame.mouse.set_visible(0)
-    size = width,height = 320,240
+    size = width, height = 320, 240
     screen = pygame.display.set_mode(size)
+
 
 def bit_to_power(bit, **kwargs):
     """Converts ADC bits to power in Watt
         
     Args:
         bit (int): Input from ADC port in bit.
-	**kwargs: ADC precision and power conversion factor (int).
-	
+    **kwargs: ADC precision and power conversion factor (int).
+
     Returns:
         Power in Watt (int).
     """  
@@ -153,6 +156,7 @@ def bit_to_power(bit, **kwargs):
     conversion = kwargs.get('conversion', 1600)
     precision = kwargs.get('precision', 4096)
     return [int(bit[0] * conversion / precision), int(bit[1] * conversion / precision)]
+
 
 def average_bit():
     """Returns average bit value of current 'average'-list.
@@ -163,29 +167,29 @@ def average_bit():
     
     global average    
     if average[0] and average[1]:
-	return [sum(average[0]) / float(len(average[0])), sum(average[1]) / float(len(average[1]))]
+        return [sum(average[0]) / float(len(average[0])), sum(average[1]) / float(len(average[1]))]
     elif average[0] and not average[1]:
         return [sum(average[0]) / float(len(average[0])), 0]
     elif average[1] and not average[0]:
         return [0, sum(average[1]) / float(len(average[1]))]
     else:
-	return [0, 0]
+        return [0, 0]
+
 
 def send_http_get(power, sleeptime):
     """Returns average bit value of current 'average'-list.
   
     Args:
         power (int): average power since last send event.
-	sleeptime (float): time interrupt to reduce server load. 
-	  
+        sleeptime (float): time interrupt to reduce server load.
+
     Returns:
         Average of "average" list (float).
     """ 
     
     global average
     timenow = int(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')[:-4])
-   
-    sites = ['http://redlab.colo.hawaii.edu/dirgtrams+'+str(power[0])+'+'+str(power[1])+    '+'+str(timenow)]
+    sites = ['http://redlab.colo.hawaii.edu/dirgtrams+'+str(power[0])+'+'+str(power[1])+'+'+str(timenow)]
     print sites
     average = [],[]
     multi_get(sites,timeout=1)
@@ -193,27 +197,29 @@ def send_http_get(power, sleeptime):
     print 'data submitted: ' + str(power) + 'W, list length: ' + str(len(average[0]))
     #display_power(power)
 
+
 def http_get_thread(d, **kwargs):
     conversion = kwargs.get('conversion', 1600)
     precision = kwargs.get('precision', 4096)   
     sleeptime = kwargs.get('sleeptime', 0.5) 
-    while True:	   
-        power = bit_to_power(average_bit(), precision = precision, conversion = conversion)
-	send_http_get(power, sleeptime) 
+    while True:
+        power = bit_to_power(average_bit(), precision=precision, conversion=conversion)
+        send_http_get(power, sleeptime)
 
-def adcread_C1(**kwargs):
+
+def adcread_C1(channel, **kwargs):
     adc_port = kwargs.get('adc_port', 1)
-    signal = 0
     sig = [0, 0, 0, 0]
        
     while True:
-       signal = wiringpi2.analogRead(adc_port)      
-       if signal < sig[0] <= sig[1] >= sig[2] > sig[3]:
-           average[channel].append(signal)
-	   time.sleep(0.01)	   
-       sig = [signal] + sig
-       del sig[-1]
-       
+        signal = wiringpi2.analogRead(adc_port)
+        if signal < sig[0] <= sig[1] >= sig[2] > sig[3]:
+            average[channel].append(signal)
+        time.sleep(0.01)
+        sig = [signal] + sig
+        del sig[-1]
+
+
 def adcread_MCP3208(channel0, channel1): 
     sig1 = [0, 0, 0, 0]
     sig2 = [0, 0, 0, 0]
@@ -240,23 +246,26 @@ def adcread_MCP3208(channel0, channel1):
         del sig1[-1]
         sig2 = [signal2] + sig2
         del sig2[-1]
-       	
+
+
 def csv_write(d):
     time.sleep(0.9988)
     print datetime.datetime.now()
-    threading.Timer(1, csv_write(1)).start();
+    threading.Timer(1, csv_write(1)).start()
 
-def multi_get(uris,timeout=1.0):
+
+def multi_get(uris, timeout=1.0):
     def alive_count(lst):
-        alive = map(lambda x : 1 if x.isAlive() else 0, lst)
-        return reduce(lambda a,b : a + b, alive)
+        alive = map(lambda x: 1 if x.isAlive() else 0, lst)
+        return reduce(lambda a, b: a + b, alive)
     threads = [ URLThread(uri) for uri in uris ]
     for thread in threads:
         thread.start()
     while alive_count(threads) > 0 and timeout > 0.0:
         timeout = timeout - UPDATE_INTERVAL
         sleep(UPDATE_INTERVAL)
-    return [ (x.url, x.response) for x in threads ]
+    return [(x.url, x.response) for x in threads ]
+
 
 def display_power(power):
     screen.fill((0,0,0))
@@ -276,12 +285,13 @@ def display_power(power):
     screen.blit(c2label, (40, 140))
 
     powerlabel2 = myfont.render(str(power[1])+"W", 1, (0, 255, 30))
-    screen.blit(powerlabel2, (40,160))
+    screen.blit(powerlabel2, (40, 160))
 
     pygame.display.update()
 
+
 class URLThread(Thread):
-    def __init__(self,url):
+    def __init__(self, url):
         super(URLThread, self).__init__()
         self.url = url
         self.response = None
@@ -292,9 +302,9 @@ class URLThread(Thread):
 
 if __name__ == "__main__":    
     init_wiringpi2()
-    init_spidev()	
+    init_spidev()
     #init_tft()
     #thread.start_new_thread(csv_write, (1,))
-    thread.start_new_thread(http_get_thread, (1,), {'sleeptime':0.5, 'conversion':4490})
+    thread.start_new_thread(http_get_thread, (1,), {'sleeptime': 0.5, 'conversion': 4490})
     #thread.start_new_thread(adcread_C1())
     thread.start_new_thread(adcread_MCP3208(0, 1))
