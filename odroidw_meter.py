@@ -290,7 +290,7 @@ class URLThread(Thread):
         self.request = urlopen(self.url)
         self.response = self.request.read()
 
-if __name__="__main__":    
+if __name__ == "__main__":    
     init_wiringpi2()
     init_spidev()	
     #init_tft()
