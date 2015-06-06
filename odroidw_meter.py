@@ -290,14 +290,11 @@ class URLThread(Thread):
         self.request = urlopen(self.url)
         self.response = self.request.read()
 
-    
-init_wiringpi2()
-init_spidev()	
-#init_tft()
-#thread.start_new_thread(csv_write, (1,))
-thread.start_new_thread(http_get_thread, (1,), {'sleeptime':0.5, 'conversion':4490})
-#thread.start_new_thread(adcread_C1())
-thread.start_new_thread(adcread_MCP3208(0, 1))
-
-while 1:
-    pass
+if __name__="__main__":    
+    init_wiringpi2()
+    init_spidev()	
+    #init_tft()
+    #thread.start_new_thread(csv_write, (1,))
+    thread.start_new_thread(http_get_thread, (1,), {'sleeptime':0.5, 'conversion':4490})
+    #thread.start_new_thread(adcread_C1())
+    thread.start_new_thread(adcread_MCP3208(0, 1))
