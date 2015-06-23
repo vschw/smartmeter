@@ -167,11 +167,11 @@ def average_bit():
     
     global average    
     if average[0] and average[1]:
-        return [sum(average[0]) / float(len(average[0])), sum(average[1]) / float(len(average[1]))]
+        return [numpy.median(average[0]), numpy.median(average[1])]
     elif average[0] and not average[1]:
-        return [sum(average[0]) / float(len(average[0])), 0]
+        return [numpy.median(average[0]), 0]
     elif average[1] and not average[0]:
-        return [0, sum(average[1]) / float(len(average[1]))]
+        return [0, numpy.median(average[1])]
     else:
         return [0, 0]
 
@@ -191,8 +191,8 @@ def send_http_get(power, sleeptime):
     timenow = int(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')[:-4])
     sites = ['http://redlab.colo.hawaii.edu/dirgtrams+'+str(power[0])+'+'+str(power[1])+'+'+str(timenow)]
     print sites
-    average = [],[]
-    multi_get(sites,timeout=1)
+    average = [], []
+    multi_get(sites, timeout=1)
     time.sleep(sleeptime)
     print 'data submitted: ' + str(power) + 'W, list length: ' + str(len(average[0]))
     #display_power(power)
@@ -227,20 +227,16 @@ def adcread_MCP3208(channel0, channel1):
         r1 = spi.xfer2([4 | 2 | (channel0 >> 2), (channel0 & 3) << 6, 0])
         signal1 = ((r1[1] & 15) << 8) + r1[2]
         if signal1 < sig1[0] <= sig1[1] >= sig1[2] > sig1[3]:
-            arr = numpy.array([sig1[0], sig1[1], sig1[2], sig1[3], signal1])
-            if numpy.std(arr, axis=0) < 40:
-                average[channel0].append(sig1[1])
-                #time.sleep(0.00001) 
-                #print str(signal1)+' '+str(sig1[0])+' '+str(sig1[1])+' '+str(sig1[2])+' '+str(sig1[3])
+            average[channel0].append(sig1[1])
+            #time.sleep(0.00001)
+            #print str(signal1)+' '+str(sig1[0])+' '+str(sig1[1])+' '+str(sig1[2])+' '+str(sig1[3])
 
         r2 = spi.xfer2([4 | 2 | (channel1 >> 2), (channel1 & 3) << 6, 0])
         signal2 = ((r2[1] & 15) << 8) + r2[2]       
         if signal2 < sig2[0] <= sig2[1] >= sig2[2] > sig2[3]:
-            arr = numpy.array([sig2[0], sig2[1], sig2[2], sig2[3], signal2])
-            if numpy.std(arr, axis=0) < 40:
-                average[channel1].append(sig2[1])
-                #time.sleep(0.00001) 
-                #print str(signal2)+' '+str(sig2[0])+' '+str(sig2[1])+' '+str(sig2[2])+' '+str(sig2[3])
+            average[channel1].append(sig2[1])
+            #time.sleep(0.00001)
+            #print str(signal2)+' '+str(sig2[0])+' '+str(sig2[1])+' '+str(sig2[2])+' '+str(sig2[3])
 
         sig1 = [signal1] + sig1
         del sig1[-1]
