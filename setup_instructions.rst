@@ -7,7 +7,7 @@ Download Raspbian
 
 Download latest version of Rasbian from:
 
-<https://www.raspberrypi.org/downloads/>
+https://www.raspberrypi.org/downloads/
 
 The version we used was *2015-05-05-raspbian-wheezy.img*.
 
@@ -35,7 +35,7 @@ Connect to WIFI
         
 add:
     
-    ..code::
+    ..code:: bash
     
         sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
         
@@ -49,11 +49,7 @@ add:
     
 
 Install python-dev and python-pip
-<<<<<<< HEAD
-#################################sudo n
-=======
 #################################
->>>>>>> 3ea73c78ae987e2d6972cfea5b204efdd73804eb
 
     .. code:: bash
  
@@ -71,8 +67,6 @@ Install py-spidev and WiringPi2
         git clone https://github.com/Gadgetoid/WiringPi2-Python.git
         cd WiringPi2-Python
         sudo python setup.py install  
-<<<<<<< HEAD
-=======
 
 
 Install paramiko
@@ -83,7 +77,6 @@ Install paramiko
         git clone https://github.com/paramiko/paramiko
         cd paramiko
         sudo python setup.py install  
->>>>>>> 3ea73c78ae987e2d6972cfea5b204efdd73804eb
         
        
 Enable SPI on the Odroid W
@@ -122,7 +115,6 @@ Add the following lines:
         
     .. code:: bash 
     
-
         sudo reboot       
 
 
