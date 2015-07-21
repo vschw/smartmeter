@@ -6,11 +6,11 @@
 Setup Description
 #################
 
-This application module utilizes the external 12-bit MCP3208 ADC
-connected to the Odroid W via SPI to be used as a real-time 
-smart-power-meter. Current clamps in series with burden resistors
-are connected to the input channels of the MCP3208. The MCP3208 is
-connected to the GPIO port of the W using the following configuration:
+This application module utilizes the external 12-bit MCP3208 ADC connected
+to the Odroid W via SPI to be used as a real-time smart-power-meter. Current
+clamps in series with burden resistors are connected to the input channels of
+the MCP3208. The MCP3208 is connected to the GPIO port of the W using the
+following configuration:
 
     MCP3208
     +------+
@@ -24,56 +24,41 @@ CH6 |7   10| CS/SHDN   -->    CE0 (Pin 26)
 CH7 |8    9| DGND      -->    GND (Pin 6)
     +------+
 
+
 Method of Operation
 ###################
 
-Current transducers (clamps) are used to measure AC currents. 
-An AC current in the primary winding of the transducer produces an
-alternating magnetic field in the core, which then induces an
-alternating current in the secondary winding circuit. A burdon resistor
-, which is connected in series within this circuit, converts the
-current into a proportional voltage. This voltage is measured by the
-ADC and send via SPI to the W.
+Current transducers (clamps) are used to measure AC currents. An AC current in
+the primary winding of the transducer produces an alternating magnetic field
+in the core, which then induces an alternating current in the secondary
+winding circuit. A burdon resistor, which is connected in series within this
+circuit, converts the current into a proportional voltage. This voltage is
+measured by the ADC and send via SPI to the W.
 
-The goal is to identify the amplitude of each phase as precisely as
-possible to determine the power consumption in 60Hz intervals (mains
-frequency). Assuming a constant grid voltage, current can be translated 
-into power. 
+The goal is to identify the amplitude of each phase as precisely as possible
+to determine the power consumption in 60Hz intervals (main frequency).
+Assuming a constant grid voltage, current can be translated into power.
 
-The amplitude of each phase is identified, measured, and 
-submitted to a remote server via http get requests. 
-Assuming a constant grid voltage, the current is translated to power.
-The remote server analyzes the submitted data (int) and saves
-it into a mysql database.
+The amplitude of each phase is identified, measured, and submitted to a remote
+server. Assuming a constant grid voltage, the current is translated to power,
+the data is communicated to the server and saved in a database. This package
+includes two possible options for data communication:
 
-This module makes use of threading to enable data collection while
-http requests are sent.
+1. send_http_get() sends data via http-get requests. A server-side scripts
+listens to events and writes the data into a local database.
+2. ssh_to_db() establishes a ssh connection to the server and uses paramikp
+to directly write to the database.
+
+This module makes use of threading to enable data collection while data is
+communicated.
+
 
 Dependencies
 ############
 
-The following third-party packages are needed:
-    #. **spidev**
-       Python bindings for Linux SPI access through spidev::
-           
-           git clone git://github.com/doceme/py-spidev
-           cd py-spidev/
-           sudo python setup.py install
+Refer to setup_instructions.rst for dependencies and installation
+instructions.
 
-       This install requires:
-            
-           sudo apt-get install python-dev
-
-This packages if needed if internal 10-bit ADC of C1 has to be accessed
-or for other GPIO functionality:
-    #. **wiringpi2**
-       A python interface to WiringPi 2.0 library for easy interfacing 
-       with GPIO pins of Odroid C1/ Raspberry Pi. Also supports i2c and
-       SPI::
-       
-           git clone https://github.com/Gadgetoid/WiringPi2-Python.git
-           cd WiringPi2-Python
-           sudo python setup.py install
 
 Module
 ######
@@ -94,6 +79,9 @@ from time import sleep
 import pygame
 import os
 import numpy
+import paramiko
+import ConfigParser
+import socket
 
 __author__ = "vschw"
 __copyright__ = "Copyright 2015, University of Hawaii at Manoa"
@@ -109,29 +97,34 @@ UPDATE_INTERVAL = 0.0001
 
 
 def init_wiringpi2():
-    """Enables wiringPi2 on Odroid C1.
+    """Enables wiringPi2 on Odroid W.
     
-    This function enables access to all GPIOs of the C1.
+    This function enables access to all GPIOs of the W.
     Furthermore, both analog (ADC) ports are opened.
     """ 
         
     wiringpi2.wiringPiSetup()
+    print 'wiringPi loaded'
     pass
 
 
 def init_spidev():
-    """Enables spidev on Odroid C1.
+    """Enables spidev on Odroid W.
     
-    This function enables access SPI on the C1 utilizing
+    This function enables access SPI on the W utilizing
     spidev0.0 from the kernel driver.
     """ 
     
     global spi   
     spi = spidev.SpiDev()
     spi.open(0, 1)
+    print 'SPI initialized'
 
 
 def init_tft():
+    """Enables TFT screen on fb1.
+    """
+
     os.environ["SDL_FBDEV"] = "/dev/fb1"
     os.environ['SDL_VIDEODRIVER']="fbcon"
     global screen
@@ -140,6 +133,35 @@ def init_tft():
     pygame.mouse.set_visible(0)
     size = width, height = 320, 240
     screen = pygame.display.set_mode(size)
+    print 'TFT screen initialized'
+
+
+def init_config():
+    """Loads configuration data from config.ini
+    """
+
+    global ip, usr, key_path, db_name, node
+
+    config = ConfigParser.ConfigParser()
+    config.read('config.ini')
+
+    ip = config.get('ssh_login', 'ip')
+    usr = config.get('ssh_login', 'username')
+    key_path = config.get('ssh_login', 'key_path')
+    db_name = config.get('db_login', 'db_name')
+    node = config.get('device_info', 'node')
+
+
+def init_ssh():
+    """SSH to the server using paramiko.
+    """
+
+    global ssh
+    init_config()
+    ssh = paramiko.SSHClient()
+    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+    ssh.connect(ip, username=usr, key_filename=key_path)
+    print 'SSH Connection established'
 
 
 def bit_to_power(bit, **kwargs):
@@ -177,14 +199,7 @@ def average_bit():
 
 
 def send_http_get(power, sleeptime):
-    """Returns average bit value of current 'average'-list.
-  
-    Args:
-        power (int): average power since last send event.
-        sleeptime (float): time interrupt to reduce server load.
-
-    Returns:
-        Average of "average" list (float).
+    """Submits http get request to server.
     """ 
     
     global average
@@ -198,19 +213,52 @@ def send_http_get(power, sleeptime):
     #display_power(power)
 
 
-def http_get_thread(d, **kwargs):
+def ssh_to_db(power, sleeptime):
+    """Uses Paramiko to ssh to server and insert to mongoDB.
+    """
+
+    global average
+    timenow = int(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')[:-4])
+    try:
+        ssh.exec_command('mongo '+db_name+' --eval "db.nodes.insert({'
+                                          'node: '+node+''
+                                          ',timestamp: '+str(timenow)+''
+                                          ',value: \'use_kw1\''
+                                          ',power: '+str(power[0])+'})"')
+        ssh.exec_command('mongo '+db_name+' --eval "db.nodes.insert({'
+                                          'node: '+node+''
+                                          ',timestamp: '+str(timenow)+''
+                                          ',value: \'use_kw2\''
+                                          ',power: '+str(power[1])+'})"')
+
+    except socket.error as e:
+        init_ssh()
+
+    print 'data sent: '+str(power[0])+'W and '+str(power[1])+'W'
+    display_power(power)
+    time.sleep(sleeptime)
+
+
+def submit_data_thread(d, **kwargs):
+    """Initializes power data submission.
+    """
+
     conversion = kwargs.get('conversion', 1600)
     precision = kwargs.get('precision', 4096)   
-    sleeptime = kwargs.get('sleeptime', 0.5) 
+    sleeptime = kwargs.get('sleeptime', 0.5)
     while True:
         power = bit_to_power(average_bit(), precision=precision, conversion=conversion)
-        send_http_get(power, sleeptime)
+        #send_http_get(power, sleeptime)
+        ssh_to_db(power, sleeptime)
 
 
-def adcread_C1(channel, **kwargs):
+def adcread_W(channel, **kwargs):
+    """Reads voltage signal of on-board Odroid W ADC.
+    """
+
     adc_port = kwargs.get('adc_port', 1)
     sig = [0, 0, 0, 0]
-       
+
     while True:
         signal = wiringpi2.analogRead(adc_port)
         if signal < sig[0] <= sig[1] >= sig[2] > sig[3]:
@@ -220,7 +268,10 @@ def adcread_C1(channel, **kwargs):
         del sig[-1]
 
 
-def adcread_MCP3208(channel0, channel1): 
+def adcread_MCP3208(channel0, channel1):
+    """Reads voltage signal of external MCP3208 ADC.
+    """
+
     sig1 = [0, 0, 0, 0]
     sig2 = [0, 0, 0, 0]
     while True:    
@@ -244,13 +295,10 @@ def adcread_MCP3208(channel0, channel1):
         del sig2[-1]
 
 
-def csv_write(d):
-    time.sleep(0.9988)
-    print datetime.datetime.now()
-    threading.Timer(1, csv_write(1)).start()
-
-
 def multi_get(uris, timeout=1.0):
+    """Enables threading.
+    """
+
     def alive_count(lst):
         alive = map(lambda x: 1 if x.isAlive() else 0, lst)
         return reduce(lambda a, b: a + b, alive)
@@ -264,6 +312,9 @@ def multi_get(uris, timeout=1.0):
 
 
 def display_power(power):
+    """Uses pygame to display real-time power data on LCD screen.
+    """
+
     screen.fill((0,0,0))
     smallfont = pygame.font.SysFont("Monofonto", 30)
     descr = smallfont.render("Current Power Consumption:", 1, (255, 255, 255))
@@ -292,15 +343,18 @@ class URLThread(Thread):
         self.url = url
         self.response = None
 
+
     def run(self):
         self.request = urlopen(self.url)
         self.response = self.request.read()
 
+
 if __name__ == "__main__":    
     init_wiringpi2()
     init_spidev()
-    #init_tft()
+    init_tft()
+    init_ssh()
     #thread.start_new_thread(csv_write, (1,))
-    thread.start_new_thread(http_get_thread, (1,), {'sleeptime': 0.5, 'conversion': 4490})
+    thread.start_new_thread(submit_data_thread, (1,), {'sleeptime': 0.5, 'conversion': 4490})
     #thread.start_new_thread(adcread_C1())
     thread.start_new_thread(adcread_MCP3208(0, 1))
