@@ -28,11 +28,13 @@ Start Odroid W.
     
 Connect to WIFI
 ###############
-    
-    ..code:: bash
+
+Edit *wpa_supplicant.conf*
+
+    .. code:: bash
     
         sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
-        
+
 add:
     .. code:: bash
     
