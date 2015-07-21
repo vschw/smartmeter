@@ -1,2 +1,3 @@
-# smartmeter
-Python library for domestic power metering, and real-time data submission....
+#smartmeter 
+
+A python package for real-time home energy metering.
