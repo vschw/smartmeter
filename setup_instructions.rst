@@ -7,11 +7,7 @@ Download Raspbian
 
 Download latest version of Rasbian from:
 
-<<<<<<< HEAD
-`<https://www.raspberrypi.org/downloads/>`
-=======
-https://www.raspberrypi.org/downloads/
->>>>>>> 3ea73c78ae987e2d6972cfea5b204efdd73804eb
+<https://www.raspberrypi.org/downloads/>
 
 The version we used was *2015-05-05-raspbian-wheezy.img*.
 
@@ -34,19 +30,17 @@ Connect to WIFI
 ###############
 
     .. code:: bash
-<<<<<<< HEAD
+
         sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
         
 add:
     
     ..code::
-=======
     
         sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
         
 add:
     .. code:: bash
->>>>>>> 3ea73c78ae987e2d6972cfea5b204efdd73804eb
     
         network={
                  ssid="SSID"
@@ -128,12 +122,10 @@ Add the following lines:
         
     .. code:: bash 
     
-<<<<<<< HEAD
+
         sudo reboot       
 
 
-=======
-        sudo reboot  
 
 
 Create key-based SSH login
@@ -152,4 +144,4 @@ Transfer Client Key to Host
     .. code:: bash
     
         ssh-copy-id <username>@<host>
->>>>>>> 3ea73c78ae987e2d6972cfea5b204efdd73804eb
+
