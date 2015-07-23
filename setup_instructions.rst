@@ -17,12 +17,12 @@ Burn image to SD card
 
 Use at least a 4GB class 4 SD card.
 
-    .. code:: bash
+.. code:: bash
  
-        df -h
-        dd if=filename.img of=/dev/<add device name> bs=4M
-        sync
-        
+    df -h
+    dd if=filename.img of=/dev/<add device name> bs=4M
+    sync
+  
 Start Odroid W.
     
     
@@ -31,87 +31,87 @@ Connect to WIFI
 
 Edit *wpa_supplicant.conf*
 
-    .. code:: bash
+.. code:: bash
     
-        sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
+    sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
 
 add:
-    .. code:: bash
+
+.. code:: bash
     
-        network={
-                 ssid="SSID"
-                 psk="PASSWORD"
-        }
+    network={
+             ssid="SSID"
+             psk="PASSWORD"
+    }
     
 
 Install python-dev and python-pip
 #################################
 
-    .. code:: bash
+.. code:: bash
  
-        sudo apt-get update
-        sudo apt-get install python-dev python-pip
+    sudo apt-get update
+    sudo apt-get install python-dev python-pip
 
-        
+    
 Install py-spidev and WiringPi2
 ###############################
 
-    .. code:: bash
+.. code:: bash
  
-        sudo pip install spidev
-        
-        git clone https://github.com/Gadgetoid/WiringPi2-Python.git
-        cd WiringPi2-Python
-        sudo python setup.py install  
+    sudo pip install spidev
+    
+    git clone https://github.com/Gadgetoid/WiringPi2-Python.git
+    cd WiringPi2-Python
+    sudo python setup.py install  
 
 
 Install paramiko
 ################
 
-    .. code:: bash
-        
-        git clone https://github.com/paramiko/paramiko
-        cd paramiko
-        sudo python setup.py install  
-        
-       
+.. code:: bash
+    
+    git clone https://github.com/paramiko/paramiko
+    cd paramiko
+    sudo python setup.py install  
+    
+   
 Enable SPI on the Odroid W
 ##########################
 
-    .. code:: bash 
-     
-        sudo raspi-config
-        
+.. code:: bash 
+ 
+    sudo raspi-config
+    
 Select "Advanced Options -> SPI Enable/Disable automatic loading"
 
    
 Enable fb1 (if needed)
 ######################
 
-    .. code:: bash 
+.. code:: bash 
     
-        curl -SLs https://apt.adafruit.com/add | sudo bash
-        sudo apt-get install -y adafruit-pitft-helper
-        sudo nano /boot/config.txt
-        
+    curl -SLs https://apt.adafruit.com/add | sudo bash
+    sudo apt-get install -y adafruit-pitft-helper
+    sudo nano /boot/config.txt
+    
 Add the following lines:
  
-    .. code::
-         
-        [pi1]
-        device_tree=bcm2708-rpi-b-plus.dtb
-        [pi2]
-        device_tree=bcm2709-rpi-2-b.dtb
-        [all]
-        dtparam=spi=on
-        dtparam=i2c1=on
-        dtparam=i2c_arm=on
-        dtoverlay=pitft28c,rotate=90,speed=32000000,fps=20
-        
-        
-    .. code:: bash 
+ .. code::
+ 
+    [pi1]
+    device_tree=bcm2708-rpi-b-plus.dtb
+    [pi2]
+    device_tree=bcm2709-rpi-2-b.dtb
+    [all]
+    dtparam=spi=on
+    dtparam=i2c1=on
+    dtparam=i2c_arm=on
+    dtoverlay=pitft28c,rotate=90,speed=32000000,fps=20
     
-        sudo reboot       
+.. code:: bash 
+    
+    sudo reboot       
 
 
 Create key-based SSH login
@@ -119,34 +119,34 @@ Create key-based SSH login
 
 Generating RSA Keys
 
-    .. code:: bash 
+.. code:: bash 
     
-        mkdir ~/.ssh
-        sudo chmod 700 ~/.ssh
-        ssh-keygen -t rsa
+    mkdir ~/.ssh
+    sudo chmod 700 ~/.ssh
+    ssh-keygen -t rsa
 
 Transfer Client Key to Host
 
-    .. code:: bash
+.. code:: bash
     
-        ssh-copy-id <username>@<host>
+    ssh-copy-id <username>@<host>
 
 
 (Optional) Enable startup auto-login for Rasbian
 ################################################
 
-    .. code:: bash
+.. code:: bash
     
-        sudo nano /etc/inittab
+    sudo nano /etc/inittab
 
 Replace the following line:
    
-    .. code:: bash
+.. code:: bash
     
-        1:2345:respawn:/sbin/getty 115200 tty1
+    1:2345:respawn:/sbin/getty 115200 tty1
 
 with this one:
    
-    .. code:: bash
+.. code:: bash
     
-        1:2345:respawn:/bin/login -f pi tty1 </dev/tty1 >/dev/tty1 2>&1
+    1:2345:respawn:/bin/login -f pi tty1 </dev/tty1 >/dev/tty1 2>&1
