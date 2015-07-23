@@ -97,7 +97,7 @@ Enable fb1 (if needed)
     
 Add the following lines:
  
- .. code::
+.. code::
  
     [pi1]
     device_tree=bcm2708-rpi-b-plus.dtb
