@@ -354,7 +354,5 @@ if __name__ == "__main__":
     init_spidev()
     init_tft()
     init_ssh()
-    #thread.start_new_thread(csv_write, (1,))
     thread.start_new_thread(submit_data_thread, (1,), {'sleeptime': 0.5, 'conversion': 4490})
-    #thread.start_new_thread(adcread_C1())
     thread.start_new_thread(adcread_MCP3208(0, 1))
