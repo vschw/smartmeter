@@ -114,8 +114,6 @@ Add the following lines:
         sudo reboot       
 
 
-
-
 Create key-based SSH login
 ##########################
 
@@ -133,3 +131,22 @@ Transfer Client Key to Host
     
         ssh-copy-id <username>@<host>
 
+
+(Optional) Enable startup auto-login for Rasbian
+################################################
+
+    .. code:: bash
+    
+        sudo nano /etc/inittab
+
+Replace the following line:
+   
+    .. code:: bash
+    
+        1:2345:respawn:/sbin/getty 115200 tty1
+
+with this one:
+   
+    .. code:: bash
+    
+        1:2345:respawn:/bin/login -f pi tty1 </dev/tty1 >/dev/tty1 2>&1
