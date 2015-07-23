@@ -20,7 +20,7 @@ Use at least a 4GB class 4 SD card.
     .. code:: bash
  
         df -h
-        dd if=filename.img of=/dev/mmcblk0]s bs=4M
+        dd if=filename.img of=/dev/<add device name> bs=4M
         sync
         
 Start Odroid W.
