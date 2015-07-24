@@ -22,10 +22,22 @@ Use at least a 4GB class 4 SD card.
     df -h
     dd if=filename.img of=/dev/<add device name> bs=4M
     sync
-  
+ 
 Start Odroid W.
-    
-    
+
+
+Expand File System and enable SPI
+#################################
+
+.. code:: bash 
+ 
+    sudo raspi-config
+
+1. Select "Expand File System"
+2. Select "Advanced Options -> SPI Enable/Disable automatic loading"
+3. Finish and reboot
+
+
 Connect to WIFI
 ###############
 
@@ -74,44 +86,24 @@ Install paramiko
     git clone https://github.com/paramiko/paramiko
     cd paramiko
     sudo python setup.py install  
-    
-   
-Enable SPI on the Odroid W
+
+
+Enable fb1 for 2.2inch TFT
 ##########################
 
-.. code:: bash 
- 
-    sudo raspi-config
-    
-Select "Advanced Options -> SPI Enable/Disable automatic loading"
+For linux kernels >3.15, fbtft and many drivers are already included. Updating the kernel (new bootloader) is not required.
 
-   
-Enable fb1 (if needed)
-######################
+Enable tft driver 
 
-.. code:: bash 
-    
-    curl -SLs https://apt.adafruit.com/add | sudo bash
-    sudo apt-get install -y adafruit-pitft-helper
-    sudo nano /boot/config.txt
-    
-Add the following lines:
- 
+.. code:: bash
+
+    sudo nano /etc/modules
+
+Add the following line:
+
 .. code::
- 
-    [pi1]
-    device_tree=bcm2708-rpi-b-plus.dtb
-    [pi2]
-    device_tree=bcm2709-rpi-2-b.dtb
-    [all]
-    dtparam=spi=on
-    dtparam=i2c1=on
-    dtparam=i2c_arm=on
-    dtoverlay=pitft28c,rotate=90,speed=32000000,fps=20
-    
-.. code:: bash 
-    
-    sudo reboot       
+
+    fbtft_device name=adafruit22a verbose=0 rotate=90
 
 
 Create key-based SSH login
@@ -150,3 +142,43 @@ with this one:
 .. code:: bash
     
     1:2345:respawn:/bin/login -f pi tty1 </dev/tty1 >/dev/tty1 2>&1
+
+
+(Optional) Enable startx on startup
+###################################
+
+.. code:: bash
+
+    sudo nano /etc/rc.local
+
+add the following line:
+
+.. code::
+
+    su -l pi -c "env FRAMEBUFFER=/dev/fb1 startx &"
+
+Disable the fb0 option in 99-fbturbo.conf
+
+.. code:: bash
+
+    sudo nano /usr/share/X11/xorg.conf.d/99-fbturbo.conf 
+
+comment the following line:
+
+.. code::
+
+#          Option        "fbdev" "/dev/fb0"
+
+Console at boot: Add kernel argument to file /boot/cmdline.txt
+
+.. code:: bash
+
+    sudo nano /boot/cmdline.txt
+
+add:
+
+.. code::
+
+    fbcon=map:10 
+
+Reboot.
