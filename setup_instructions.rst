@@ -128,17 +128,17 @@ Transfer Client Key to Host
 ################################################
 
 .. code:: bash
-    
+
     sudo nano /etc/inittab
 
 Replace the following line:
-   
+
 .. code:: bash
-    
+
     1:2345:respawn:/sbin/getty 115200 tty1
 
 with this one:
-   
+
 .. code:: bash
     
     1:2345:respawn:/bin/login -f pi tty1 </dev/tty1 >/dev/tty1 2>&1
@@ -167,7 +167,7 @@ comment the following line:
 
 .. code::
 
-#          Option        "fbdev" "/dev/fb0"
+    #    Option        "fbdev" "/dev/fb0"
 
 Console at boot: Add kernel argument to file /boot/cmdline.txt
 
