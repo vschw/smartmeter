@@ -44,18 +44,18 @@ Connect to WIFI
 Edit *wpa_supplicant.conf*
 
 .. code:: bash
-    
+
     sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
 
 add:
 
 .. code:: bash
-    
+
     network={
              ssid="SSID"
              psk="PASSWORD"
     }
-    
+
 
 Install python-dev and python-pip
 #################################
@@ -65,7 +65,7 @@ Install python-dev and python-pip
     sudo apt-get update
     sudo apt-get install python-dev python-pip
 
-    
+
 Install py-spidev and WiringPi2
 ###############################
 
@@ -82,7 +82,7 @@ Install paramiko
 ################
 
 .. code:: bash
-    
+
     git clone https://github.com/paramiko/paramiko
     cd paramiko
     sudo python setup.py install  
@@ -104,6 +104,12 @@ Add the following line:
 .. code::
 
     fbtft_device name=adafruit22a verbose=0 rotate=90
+
+The console can be displayed on the tft using:
+
+.. code::
+
+    con2fbmap 1 1
 
 
 Create key-based SSH login
