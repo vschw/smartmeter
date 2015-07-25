@@ -91,7 +91,7 @@ Install paramiko
 Enable fb1 for 2.2inch TFT
 ##########################
 
-For linux kernels >3.15, fbtft and many drivers are already included. Updating the kernel (new bootloader) is not required.
+For linux kernels >3.15, fbtft and dependent drivers are already included. Updating the kernel (new bootloader) is not required.
 
 Enable tft driver 
 
