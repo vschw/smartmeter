@@ -234,6 +234,8 @@ def ssh_to_db(power, sleeptime):
     except socket.error as e:
         init_ssh()
 
+    average = [], []
+    time.sleep(sleeptime)    
     print 'data sent: '+str(power[0])+'W and '+str(power[1])+'W'
     display_power(power)
     time.sleep(sleeptime)
