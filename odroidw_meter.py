@@ -219,17 +219,22 @@ def ssh_to_db(power, sleeptime):
 
     global average
     timenow = int(datetime.datetime.now().strftime('%Y%m%d%H%M%S%f')[:-4])
+    phase_data_1 = str(average[0]).replace('[','').replace(']','').replace(' ','')
+    phase_data_2 = str(average[1]).replace('[','').replace(']','').replace(' ','') 
+    
     try:
         ssh.exec_command('mongo '+db_name+' --eval "db.nodes.insert({'
                                           'node: '+node+''
-                                          ',timestamp: '+str(timenow)+''
-                                          ',value: \'use_kw1\''
-                                          ',power: '+str(power[0])+'})"')
+                                          ', timestamp: '+str(timenow)+''
+                                          ', value: \'use_kw1\''
+                                          ', power: '+str(power[0])+''
+                                          ', phasedata: \''+phase_data_1+'\'})"')
         ssh.exec_command('mongo '+db_name+' --eval "db.nodes.insert({'
                                           'node: '+node+''
-                                          ',timestamp: '+str(timenow)+''
-                                          ',value: \'use_kw2\''
-                                          ',power: '+str(power[1])+'})"')
+                                          ', timestamp: '+str(timenow)+''
+                                          ', value: \'use_kw2\''
+                                          ', power: '+str(power[1])+''
+                                          ', phasedata: \''+phase_data_2+'\'})"')
 
     except socket.error as e:
         init_ssh()
