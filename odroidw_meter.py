@@ -46,7 +46,7 @@ includes two possible options for data communication:
 
 1. send_http_get() sends data via http-get requests. A server-side scripts
 listens to events and writes the data into a local database.
-2. ssh_to_db() establishes a ssh connection to the server and uses paramikp
+2. ssh_to_db() establishes a ssh connection to the server and uses paramiko
 to directly write to the database.
 
 This module makes use of threading to enable data collection while data is
