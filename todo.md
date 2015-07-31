@@ -2,7 +2,7 @@
 
 - [ ] finalize odroidw_meter.py
     - [ ] calibration
-    - [ ] change submisstion interval to 1Hz
+    - [ ] change submission interval to 1Hz
     - [ ] change timestamp to unix time
 
 - [ ] OS mods
