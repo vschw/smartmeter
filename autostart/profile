@@ -37,7 +37,8 @@ if [ -d /etc/profile.d ]; then
   unset i
 fi
 
-read -r -p "Press 'n' if you don NOT want to run odroidw_meter.py   "  -t 30 -n 1 -r
+echo
+read -r -p "Press 'n' if you do NOT want to run odroidw_meter.py   "  -t 25 -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then 
 	if [ -d /home/pi/smartmeter ]; then
