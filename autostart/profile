@@ -46,7 +46,7 @@ if [[ ! $REPLY =~ ^[Nn]$ ]]; then
 		if [ -f odroidw_meter.py ]; then
 			sudo python odroidw_meter.py
 		else
-			echo "dierectory exists, file does not"
+			echo "directory exists, file does not"
 		fi
 		cd
 	else
