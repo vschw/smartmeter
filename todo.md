@@ -6,10 +6,10 @@
  - [x] change timestamp to unix time
 
 - [ ] OS mods
- - [ ] create startup script
+ - [x] create startup script
  - [x] update ssh key
  - [ ] sync to timeservers (ntp)
 
 - [ ] documentation
- - [ ] 3d housing files + doc
+ - [x] 3d housing files + doc
  - [ ] pcb design + doc
