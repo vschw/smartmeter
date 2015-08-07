@@ -41,8 +41,8 @@ echo
 read -r -p "Press 'n' if you do NOT want to run odroidw_meter.py   "  -t 5 -n 1 -r
 echo
 if [[ ! $REPLY =~ ^[Nn]$ ]]; then 
-	if [ -d /home/pi/smartmeter ]; then
-		cd /home/pi/smartmeter
+	if [ -d /home/pi/smartmeter_release ]; then
+		cd /home/pi/smartmeter_release
 		if [ -f odroidw_meter.py ]; then
 			sudo python odroidw_meter.py
 		else
