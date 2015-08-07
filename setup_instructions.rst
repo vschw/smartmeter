@@ -153,6 +153,39 @@ Add execution permission to *update.sh*
     chmod +x update.sh
 
 
+Add autostart option to */etc/profile*
+######################################
+
+Edit */etc/profile* with an editor.
+
+.. code:: bash
+
+    sudo nano /etc/profile
+
+Add the following lines at the end of the file:
+
+.. code:: bash
+
+    echo
+    read -r -p "Press 'n' if you do NOT want to run odroidw_meter.py   "  -t 5 -n 1 -r
+    echo
+    if [[ ! $REPLY =~ ^[Nn]$ ]]; then 
+	    if [ -d /home/pi/smartmeter_release ]; then
+    		cd /home/pi/smartmeter_release
+    		if [ -f odroidw_meter.py ]; then
+    			sudo python odroidw_meter.py
+	    	else
+	    		echo "directory exists, file does not"
+    		fi
+    		cd
+    	else
+    		echo "directory does not exist"
+    	fi
+    fi
+
+Press *Ctrl+X* and *Y*
+
+
 Add cron job for daily release updates
 ######################################
 
