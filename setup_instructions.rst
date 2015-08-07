@@ -23,7 +23,7 @@ Use at least a 4GB class 4 SD card.
     dd if=filename.img of=/dev/<add device name> bs=4M
     sync
  
-Start Odroid W.
+Start Odroid W (preferably connected to HDMI display).
 
 
 Expand File System and enable SPI
@@ -35,7 +35,8 @@ Expand File System and enable SPI
 
 1. Select "Expand File System"
 2. Select "Advanced Options -> SPI Enable/Disable automatic loading"
-3. Finish and reboot
+3. Select "Internationalisation Options" -> "Change Timezone" -> "None of the above"
+4. Finish and reboot
 
 
 Connect to WIFI
@@ -128,6 +129,48 @@ Transfer Client Key to Host
 .. code:: bash
     
     ssh-copy-id <username>@<host>
+
+
+Clone *smartmeter_release* repository
+#####################################
+
+.. code:: bash
+
+    cd ~/
+    git clone https://github.com/vschw/smartmeter_release.git
+
+Configure *config.ini* with your own credentials.
+
+.. code:: bash
+
+    cd smartmeter_release
+    nano config.ini
+
+Add execution permission to *update.sh*
+
+.. code:: bash
+
+    chmod +x update.sh
+
+
+Add cron job for daily release updates
+######################################
+
+.. code:: bash
+
+    sudo nano /etc/cron.d/dailyupdate
+
+Add the following lines, including the line break to check for updates every day at midnight 0:00am (UTC):
+
+.. code::
+
+    0 0 * * * pi /home/pi/smartmeter_release/update.sh
+
+Restart the system
+
+.. code:: bash
+
+    sudo reboot
 
 
 (Optional) Enable startup auto-login for Rasbian
