@@ -359,6 +359,6 @@ if __name__ == "__main__":
     init_spidev()
     init_tft()
     init_ssh()
-    thread.start_new_thread(submit_data_thread, (1,), {'sleeptime': 0.9, 'conversion': 3400})
+    thread.start_new_thread(submit_data_thread, (1,), {'sleeptime': 0.9, 'conversion': 7400})
     thread.start_new_thread(adcread_MCP3208(0, 1))
 
